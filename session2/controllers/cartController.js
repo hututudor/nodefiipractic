@@ -1,11 +1,10 @@
 const HttpStatusCode = require('http-status-codes');
+const {
+  mongo: { ObjectId }
+} = require('mongoose');
 
 const createCart = async (req, res) => {
   try {
-    const {
-      mongo: { ObjectId }
-    } = require('mongoose');
-
     const products = await req.db.Product.find({
       _id: req.body.products.map(id => ObjectId(id))
     });
@@ -18,16 +17,9 @@ const createCart = async (req, res) => {
 
     const cart = await req.db.Cart.create({ ...req.body, value: price });
 
-    return res.status(HttpStatusCode.CREATED).json({
-      success: true,
-      cart
-    });
+    return res.success(HttpStatusCode.CREATED, { cart });
   } catch (error) {
-    console.error(error);
-    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Something bad happened!'
-    });
+    return res.error(error);
   }
 };
 
@@ -35,19 +27,13 @@ const getCart = async (req, res) => {
   try {
     const { cartId } = req.params;
 
-    const {
-      mongo: { ObjectId }
-    } = require('mongoose');
-
     const cart = await req.db.Cart.findOne({
       _id: ObjectId(cartId)
     });
 
-    const products = await req.db.Product.find({
+    cart.products = await req.db.Product.find({
       _id: cart.products.map(id => ObjectId(id))
     });
-
-    cart.products = products;
 
     const user = await req.db.User.findOne(
       {
@@ -58,19 +44,14 @@ const getCart = async (req, res) => {
       }
     );
 
-    return res.status(HttpStatusCode.OK).json({
-      success: true,
+    return res.success(HttpStatusCode.OK, {
       cart: {
         ...cart.toObject(),
         user
       }
     });
   } catch (error) {
-    console.error(error);
-    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Something bad happened!'
-    });
+    return res.error(error);
   }
 };
 
@@ -78,16 +59,9 @@ const getCarts = async (req, res) => {
   try {
     const carts = await req.db.Cart.find({});
 
-    return res.status(HttpStatusCode.OK).json({
-      success: true,
-      carts
-    });
+    return res.success(HttpStatusCode.OK, { carts });
   } catch (error) {
-    console.error(error);
-    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Something bad happened!'
-    });
+    return res.error(error);
   }
 };
 
@@ -95,19 +69,12 @@ const updateCart = async (req, res) => {
   try {
     const { cartId } = req.params;
 
-    const {
-      mongo: { ObjectId }
-    } = require('mongoose');
-
     const cart = await req.db.Cart.findOne({
       _id: ObjectId(cartId)
     });
 
     if (!cart) {
-      return res.status(HttpStatusCode.NOT_FOUND).json({
-        success: false,
-        message: 'cart not found!'
-      });
+      return res.message(HttpStatusCode.NOT_FOUND, 'Cart not found!');
     }
 
     const products = await req.db.Product.find({
@@ -131,16 +98,12 @@ const updateCart = async (req, res) => {
       _id: ObjectId(cartId)
     });
 
-    return res.status(HttpStatusCode.OK).json({
-      success: true,
+    return res.success(HttpStatusCode.OK, {
       cart: newCart
     });
   } catch (error) {
     console.error(error);
-    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Something bad happened!'
-    });
+    return res.error(error);
   }
 };
 
@@ -157,25 +120,16 @@ const deleteCart = async (req, res) => {
     });
 
     if (!cart) {
-      return res.status(HttpStatusCode.NOT_FOUND).json({
-        success: false,
-        message: 'cart not found!'
-      });
+      return res.message(HttpStatusCode.NOT_FOUND, 'Cart not found!');
     }
 
-    await req.db.Cart. deleteOne({
+    await req.db.Cart.deleteOne({
       _id: ObjectId(cartId)
     });
 
-    return res.status(HttpStatusCode.NO_CONTENT).json({
-      success: true
-    });
+    return res.success(HttpStatusCode.NO_CONTENT, {});
   } catch (error) {
-    console.error(error);
-    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: 'Something bad happened!'
-    });
+    return res.error(error);
   }
 };
 
