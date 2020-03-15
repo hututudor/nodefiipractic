@@ -22,6 +22,13 @@
     "morgan": "^1.9.1"
   },
   "devDependencies": {
+    "@types/body-parser": "^1.19.0",
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.3",
+    "@types/http-status-codes": "^1.2.0",
+    "@types/mongoose": "^5.7.6",
+    "@types/morgan": "^1.9.0",
+    "@types/nodemon": "^1.19.0",
     "nodemon": "^2.0.2"
   }
 }

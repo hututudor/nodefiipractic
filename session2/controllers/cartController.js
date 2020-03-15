@@ -71,7 +71,25 @@ const getCart = async (req, res) => {
   }
 };
 
+const getCarts = async (req, res) => {
+  try {
+    const carts = await req.db.Cart.find({});
+
+    return res.status(HttpStatusCode.OK).json({
+      success: true,
+      carts
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Something bad happened!"
+    });
+  }
+}
+
 module.exports = {
   createCart,
-  getCart
+  getCart,
+  getCarts
 };
