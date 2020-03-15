@@ -1,35 +1,30 @@
-const HttpStatusCode = require("http-status-codes");
+const HttpStatusCode = require('http-status-codes');
+
+const {
+  mongo: { ObjectId }
+} = require('mongoose');
 
 const getProducts = async (req, res) => {
   try {
     const products = await req.db.Product.find({});
 
-    return res.status(HttpStatusCode.OK).json({
-      success: true,
+    return res.success(HttpStatusCode.OK, {
       products
     });
   } catch (error) {
-    console.error(error);
-    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Something bad happened!"
-    });
+    return res.error(error);
   }
 };
 
 const createProduct = async (req, res) => {
   try {
     const product = await req.db.Product.create(req.body);
-    return res.status(HttpStatusCode.CREATED).json({
-      success: true,
+
+    return res.success(HttpStatusCode.CREATED, {
       product
     });
   } catch (error) {
-    console.error(error);
-    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Something bad happened!"
-    });
+    return res.error(error);
   }
 };
 
@@ -37,19 +32,12 @@ const updateProduct = async (req, res) => {
   try {
     const { productId } = req.params;
 
-    const {
-      mongo: { ObjectId }
-    } = require("mongoose");
-
     const product = await req.db.Product.findOne({
       _id: ObjectId(productId)
     });
 
     if (!product) {
-      return res.status(HttpStatusCode.NOT_FOUND).json({
-        success: false,
-        message: "product not found!"
-      });
+      return res.message(HttpStatusCode.NOT_FOUND, 'Product not found!');
     }
 
     await req.db.Product.updateOne(
@@ -63,16 +51,11 @@ const updateProduct = async (req, res) => {
       _id: ObjectId(productId)
     });
 
-    return res.status(HttpStatusCode.OK).json({
-      success: true,
+    return res.success(HttpStatusCode.OK, {
       product: newProduct
     });
   } catch (error) {
-    console.error(error);
-    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Something bad happened!"
-    });
+    return res.error(error);
   }
 };
 
@@ -80,34 +63,23 @@ const deleteProduct = async (req, res) => {
   try {
     const { productId } = req.params;
 
-    const {
-      mongo: { ObjectId }
-    } = require("mongoose");
-
     const product = await req.db.Product.findOne({
       _id: ObjectId(productId)
     });
 
     if (!product) {
-      return res.status(HttpStatusCode.NOT_FOUND).json({
-        success: false,
-        message: "product not found!"
-      });
+      return res.message(HttpStatusCode.NOT_FOUND, 'Product not found!');
     }
 
     await req.db.Product.deleteOne({
       _id: ObjectId(productId)
     });
 
-    return res.status(HttpStatusCode.NO_CONTENT).json({
+    return res.success(HttpStatusCode.NO_CONTENT, {
       success: true
     });
   } catch (error) {
-    console.error(error);
-    return res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Something bad happened!"
-    });
+    return res.error(error);
   }
 };
 

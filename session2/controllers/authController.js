@@ -1,4 +1,4 @@
-const HttpStatusCodes = require("http-status-codes");
+const HttpStatusCodes = require('http-status-codes');
 
 const login = async (req, res) => {
   try {
@@ -10,22 +10,14 @@ const login = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(HttpStatusCodes.NOT_FOUND).json({
-        success: false,
-        message: "User not found!"
-      });
+      return res.message(HttpStatusCodes.NOT_FOUND, 'User not found!');
     }
 
-    return res.status(HttpStatusCodes.OK).json({
-      success: true,
+    return res.success(HttpStatusCodes.OK, {
       user
     });
   } catch (error) {
-    console.error(error);
-    return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Something bad happen!"
-    });
+    return res.error(error);
   }
 };
 
@@ -33,27 +25,19 @@ const register = async (req, res) => {
   try {
     const existingUser = await req.db.User.findOne({
       email: req.body.email
-    })
+    });
 
     if (existingUser) {
-      return res.status(HttpStatusCodes.CONFLICT).json({
-        success: false,
-        message: "User already exists!"
-      })
+      return res.message(HttpStatusCodes.CONFLICT, 'User already exists!');
     }
 
-    const user = await req.db.User.create(req.body)
+    const user = await req.db.User.create(req.body);
 
-    return res.status(HttpStatusCodes.CREATED).json({
-      success: true,
+    return res.success(HttpStatusCodes.CREATED, {
       user
-    })
-  } catch (error) {
-    console.error(error);
-    return res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Something bad happened!"
     });
+  } catch (error) {
+    return res.error(error);
   }
 };
 
